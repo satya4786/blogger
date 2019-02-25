@@ -1,6 +1,6 @@
 from app import app, Flask, json, jsonify, request
 from app import logins
-
+import re
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -17,9 +17,13 @@ def login():
 @app.route('/signup', methods=['POST'])
 def reg():
     data = request.get_json()
-    gmail_id = data['gmail_id']
+    email_id = data['email_id']
     username = data['username']
     password = data['password']
-    dataie = {"gmail_id": gmail_id, "username": username, "password": password}
-    logins.insert_one(dataie)
+    if len(email_id) > 7:
+        if re.match('^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$', email_id) != None:
+            dataie = {"email_id": email_id, "username": username, "password": password}
+            logins.insert_one(dataie)
+        else:
+            return jsonify({"message": " invalid email id"})
     return jsonify({"message": "user registered successfully"})
